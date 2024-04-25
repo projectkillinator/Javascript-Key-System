@@ -1,0 +1,85 @@
+javascript:(function(){
+    var guiContainer = document.createElement('div');
+    guiContainer.style.position = 'fixed';
+    guiContainer.style.top = '50%';
+    guiContainer.style.left = '50%';
+    guiContainer.style.transform = 'translate(-50%, -50%)';
+    guiContainer.style.backgroundColor = '#111';
+    guiContainer.style.padding = '10px';
+    guiContainer.style.color = 'white';
+    guiContainer.style.zIndex = '9999';
+    guiContainer.style.borderRadius = '5px';
+    guiContainer.style.userSelect = 'none';
+    guiContainer.style.cursor = 'move';
+
+    var titleText = document.createElement('div');
+    titleText.textContent = 'key system';
+    guiContainer.appendChild(titleText);
+
+    var textBox = document.createElement('input');
+    textBox.type = 'text';
+    textBox.style.backgroundColor = '#222';
+    textBox.style.color = 'white';
+    textBox.style.border = 'none';
+    textBox.style.padding = '5px';
+    textBox.style.marginTop = '10px';
+    textBox.style.width = '150px';
+    textBox.style.borderRadius = '5px';
+    textBox.placeholder = '';
+    guiContainer.appendChild(textBox);
+
+    var checkButton = document.createElement('button');
+    checkButton.textContent = 'check';
+    checkButton.style.backgroundColor = '#222';
+    checkButton.style.color = 'white';
+    checkButton.style.border = 'none';
+    checkButton.style.padding = '5px 10px';
+    checkButton.style.marginLeft = '10px';
+    checkButton.style.borderRadius = '5px';
+    guiContainer.appendChild(checkButton);
+
+    document.body.appendChild(guiContainer);
+
+    var hidden = false;
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'h') {
+            hidden = !hidden;
+            guiContainer.style.display = hidden ? 'none' : 'block';
+        }
+    });
+
+    var startX, startY;
+    guiContainer.addEventListener('mousedown', function(event) {
+        startX = event.clientX - guiContainer.offsetLeft;
+        startY = event.clientY - guiContainer.offsetTop;
+        document.addEventListener('mousemove', moveHandler);
+        document.addEventListener('mouseup', upHandler);
+    });
+
+    function moveHandler(event) {
+        var newLeft = event.clientX - startX;
+        var newTop = event.clientY - startY;
+        guiContainer.style.left = newLeft + 'px';
+        guiContainer.style.top = newTop + 'px';
+    }
+
+    function upHandler() {
+        document.removeEventListener('mousemove', moveHandler);
+        document.removeEventListener('mouseup', upHandler);
+    }
+
+    checkButton.addEventListener('click', function() {
+        var enteredText = textBox.value.trim();
+        fetch('https://raw.githubusercontent.com/projectkillinator/Javascript-Key-System/main/keys')
+            .then(response => response.text())
+            .then(data => {
+                var validKeys = data.split('\n').map(key => key.trim());
+                if (validKeys.includes(enteredText)) {
+                    // Add your code here for when the correct key is entered 
+                    console.log('Valid key entered:', enteredText);
+                    document.body.removeChild(guiContainer);
+                }
+            })
+            .catch(error => console.error('Error fetching keys:', error));
+    });
+})();
